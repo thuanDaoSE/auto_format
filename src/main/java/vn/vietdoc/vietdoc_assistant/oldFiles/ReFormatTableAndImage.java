@@ -1,12 +1,14 @@
-package vn.vietdoc.vietdoc_assistant;
+package vn.vietdoc.vietdoc_assistant.oldFiles;
 
 import org.apache.poi.xwpf.usermodel.*;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTPositiveSize2D;
+import org.openxmlformats.schemas.drawingml.x2006.wordprocessingDrawing.CTAnchor;
 import org.openxmlformats.schemas.drawingml.x2006.wordprocessingDrawing.CTInline;
 import org.apache.xmlbeans.XmlCursor;
 import javax.xml.namespace.QName;
-
+import org.openxmlformats.schemas.drawingml.x2006.wordprocessingDrawing.CTAnchor;
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.math.BigInteger;
@@ -158,11 +160,52 @@ public class ReFormatTableAndImage {
             r.setFontFamily("Times New Roman");
             r.setFontSize(14);
             
-            // Logic tìm và resize ảnh
+            // Logic tìm và xử lý ảnh
             List<org.openxmlformats.schemas.wordprocessingml.x2006.main.CTDrawing> drawings = r.getCTR().getDrawingList();
             if (drawings != null && !drawings.isEmpty()) {
                 hasImage = true;
                 for (org.openxmlformats.schemas.wordprocessingml.x2006.main.CTDrawing drawing : drawings) {
+                    
+                    // --- CÁCH 2: THAO TÁC TRỰC TIẾP VỚI CẤU TRÚC XML ---
+                    // Kiểm tra xem có thẻ Anchor (ảnh đang bị Wrap) không
+                    List<CTAnchor> anchorList = drawing.getAnchorList();
+                    if (anchorList != null && !anchorList.isEmpty()) {
+                        // Duyệt ngược từ cuối lên để xóa an toàn mà không bị lỗi index
+                        for (int j = anchorList.size() - 1; j >= 0; j--) {
+                            CTAnchor anchor = anchorList.get(j);
+                            
+                            // Tạo một thẻ Inline mới trong cùng cấu trúc Drawing
+                            CTInline inline = drawing.addNewInline();
+                            
+                            // Bắt buộc phải cấu hình lề (dist) cho thẻ Inline (Word yêu cầu)
+                            inline.setDistT(0L);
+                            inline.setDistB(0L);
+                            inline.setDistL(0L);
+                            inline.setDistR(0L);
+                            
+                            // Sao chép toàn bộ các thuộc tính quan trọng từ Anchor sang Inline
+                            // .set() là cách clone node XML an toàn nhất trong Apache XmlBeans
+                            inline.addNewExtent().set(anchor.getExtent());
+                            inline.addNewDocPr().set(anchor.getDocPr());
+                            inline.addNewGraphic().set(anchor.getGraphic());
+                            
+                            if (anchor.isSetEffectExtent()) {
+                                inline.addNewEffectExtent().set(anchor.getEffectExtent());
+                            } else {
+                                inline.addNewEffectExtent();
+                            }
+                            
+                            if (anchor.isSetCNvGraphicFramePr()) {
+                                inline.addNewCNvGraphicFramePr().set(anchor.getCNvGraphicFramePr());
+                            }
+                            
+                            // Xóa thẻ Anchor cũ sau khi đã copy xong
+                            drawing.removeAnchor(j);
+                        }
+                    }
+
+                    // --- XỬ LÝ RESIZE KÍCH THƯỚC ---
+                    // Vòng lặp này giờ sẽ xử lý cả ảnh Inline cũ và ảnh Wrap vừa được ép sang Inline
                     for (CTInline inline : drawing.getInlineList()) {
                         resizeInlineImage(inline);
                     }
@@ -173,9 +216,26 @@ public class ReFormatTableAndImage {
         if (hasImage) {
             p.setAlignment(ParagraphAlignment.CENTER);
             if (p.getCTP().getPPr() != null && p.getCTP().getPPr().isSetInd()) {
-                p.getCTP().getPPr().unsetInd();
+                p.getCTP().getPPr().unsetInd(); // Xóa thụt đầu dòng (indent) để ảnh căn giữa chuẩn xác
             }
         }
+    }
+
+    private static String getBlipId(CTAnchor anchor) {
+        XmlCursor cursor = anchor.newCursor();
+        cursor.push();
+        // Quét tìm thẻ <a:blip> chứa ID ảnh
+        QName blipQName = new QName("http://schemas.openxmlformats.org/drawingml/2006/main", "blip");
+        while (cursor.hasNextToken()) {
+            if (cursor.isStart() && cursor.getName().equals(blipQName)) {
+                String rId = cursor.getAttributeText(new QName("http://schemas.openxmlformats.org/officeDocument/2006/relationships", "embed"));
+                cursor.pop();
+                return rId;
+            }
+            cursor.toNextToken();
+        }
+        cursor.pop();
+        return null; // Không tìm thấy
     }
 
     private static void resizeInlineImage(CTInline inline) {

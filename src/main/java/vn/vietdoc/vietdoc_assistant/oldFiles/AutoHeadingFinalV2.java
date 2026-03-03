@@ -1,4 +1,4 @@
-package vn.vietdoc.vietdoc_assistant;
+package vn.vietdoc.vietdoc_assistant.oldFiles;
 
 import org.apache.poi.xwpf.usermodel.*;
 import org.apache.xmlbeans.XmlCursor;
@@ -109,7 +109,6 @@ public class AutoHeadingFinalV2 {
                 // Xóa sạch thẻ rPr (Run Properties) trong XML
                 XmlCursor cursor = rpr.newCursor();
                 cursor.removeXml(); // Bùm! Mất hết định dạng rác
-                cursor.dispose();
             }
         }
     }

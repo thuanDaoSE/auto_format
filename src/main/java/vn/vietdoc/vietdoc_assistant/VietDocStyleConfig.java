@@ -16,8 +16,8 @@ public class VietDocStyleConfig {
     public static final int FONT_SIZE_CAPTION = 12;
 
     // Spacing & Indentation
-    public static final int SPACING_BEFORE = 0;       // 0pt
-    public static final int SPACING_AFTER = 120;      // 6pt = 120 twips
+    public static final int SPACING_BEFORE = 120;       // 0pt
+    public static final int SPACING_AFTER = 0;      // 6pt = 120 twips
     public static final int LINE_SPACING_MULTIPLIER = 360; // 1.5 lines = 1.5 * 240
     public static final int INDENTATION_FIRST_LINE = 567; // 1cm
 
