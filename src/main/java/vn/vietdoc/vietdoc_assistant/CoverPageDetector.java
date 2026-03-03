@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 public class CoverPageDetector {
 
-    private static final int SCAN_LIMIT = 30; 
+    private static final int SCAN_LIMIT = 24; 
 
     private static final Pattern YEAR_PATTERN = Pattern.compile(".*\\b20[0-3][0-9]\\b.*");
     private static final Pattern BLACKLIST_KEYWORDS = Pattern.compile("(?i).*(mã|sv|student|id|lớp|class|đề tài|topic|gvhd|giảng viên).*");

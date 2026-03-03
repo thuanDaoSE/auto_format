@@ -135,10 +135,17 @@ private static final Pattern CHAPTER_1_REGEX = Pattern.compile("^[\\s\\u00A0]*(?
     private static void createFooter(XWPFDocument doc, CTSectPr sectPr) {
         try {
             XWPFHeaderFooterPolicy policy = new XWPFHeaderFooterPolicy(doc, sectPr);
-            
-            // Xóa rác cũ
+            // 1. Xóa rác Footer cũ
             if (policy.getDefaultFooter() != null) policy.getDefaultFooter().clearHeaderFooter();
             if (policy.getFirstPageFooter() != null) policy.getFirstPageFooter().clearHeaderFooter(); 
+            if (policy.getEvenPageFooter() != null) policy.getEvenPageFooter().clearHeaderFooter();
+
+            // ==========================================================
+            // 2. [THÊM MỚI] XÓA SẠCH HEADER CŨ ĐỂ KHÔNG BỊ LƯU SỐ TRANG TRÊN ĐẦU
+            // ==========================================================
+            if (policy.getDefaultHeader() != null) policy.getDefaultHeader().clearHeaderFooter();
+            if (policy.getFirstPageHeader() != null) policy.getFirstPageHeader().clearHeaderFooter();
+            if (policy.getEvenPageHeader() != null) policy.getEvenPageHeader().clearHeaderFooter();
 
             XWPFFooter footer = policy.createFooter(XWPFHeaderFooterPolicy.DEFAULT);
             XWPFParagraph p = footer.createParagraph();

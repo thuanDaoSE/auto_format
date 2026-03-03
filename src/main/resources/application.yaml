@@ -1,10 +1,10 @@
 spring:
   application:
     name: vietDoc
+    
   jpa:
     hibernate:
       ddl-auto: update
-      # ddl-auto: validate
     show-sql: true
     properties:
       hibernate:
@@ -13,27 +13,46 @@ spring:
 
   data:
     redis:
-      host: localhost
+      # [CHÚ Ý 1] Nếu Redis chạy chung trong Docker Compose, đổi chữ 'localhost' thành tên service (ví dụ: 'redis')
+      # Nếu Redis cài trực tiếp trên VPS, có thể phải dùng IP của VPS thay vì localhost
+      host: localhost 
       port: 6379
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/vietdoc_db
+    # [CHÚ Ý 2] Tương tự như Redis, localhost trong Docker nghĩa là "chính cái container đó". 
+    # Nếu Postgres không nằm trong container này, nó sẽ báo lỗi "Connection Refused".
+    url: jdbc:postgresql://localhost:5432/vietdoc_db 
     username: postgres
     password: Td12345678@
     driver-class-name: org.postgresql.Driver
     hikari:
-      # Đặt con số này bằng hoặc lớn hơn số user bạn test (ví dụ: 100)
-      # Cảnh báo: Đặt quá cao trong thực tế có thể làm sập CSDL
-      maximum-pool-size: 40 
-      # Có thể đặt thêm thời gian chờ connection (mặc định là 30s)
+      # [CHÚ Ý 3] VPS của bạn có hạn. Giới hạn xử lý đồng thời là 10, thì pool size chỉ nên để 10-15. 
+      # Để 40 kết nối ngầm tới DB sẽ cực kỳ tốn RAM mà không giải quyết được gì vì CPU chỉ gánh được 10 luồng.
+      maximum-pool-size: 15 
       connection-timeout: 30000
 
   servlet:
     multipart:
-      max-file-size: 10MB
-      max-request-size: 10MB
+      # Mình đồng bộ lên 15MB cho khớp với code Java (MAX_FILE_SIZE = 15MB) mà chúng ta viết lúc nãy nhé
+      max-file-size: 15MB
+      max-request-size: 15MB
+
+  mvc:
+    async:
+      # Thời gian chờ tối đa cho 1 request là 3 phút (180000 ms) để chống kẹt luồng
+      request-timeout: 180000
+
   flyway:
-    # Kích hoạt Flyway (mặc định là true)
     enabled: false
-    # Đường dẫn đến các file migration (đây là mặc định)
     locations: classpath:db/migration
+
+# ==========================================
+# CẤU HÌNH "TRÓI CHÂN" BẢO VỆ VPS (MỚI THÊM)
+# ==========================================
+server:
+  tomcat:
+    threads:
+      # Chỉ cho phép tối đa 10 người được xử lý file cùng 1 giây (Bảo vệ CPU)
+      max: 10 
+    # Nếu có người thứ 11 vào, cho phép 100 người tiếp theo đứng vào hàng đợi (Bảo vệ RAM)
+    accept-count: 100
