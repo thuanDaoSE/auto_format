@@ -1,120 +1,290 @@
-PROJECT: VIETDOC ASSISTANT - AI DEVELOPER GUIDE
-TARGET AUDIENCE: AI Agents (DeepSeek, ChatGPT, Claude, Gemini). GOAL: Build a robust, hybrid document processing system using Java & Apache POI + LLM APIs. CURRENT STATUS: MVP / Refactoring Phase.
+<div align="center">
 
-1. PROJECT PHILOSOPHY (CRITICAL)
-This project follows a HYBRID ARCHITECTURE. You must strictly adhere to the separation of concerns:
+# 📄 VietDoc Assistant - Hệ Thống Chuẩn Hóa Tài Liệu Thông Minh
 
-LAYER 1: HARD LOGIC (The Muscle) - Apache POI
+[![Java](https://img.shields.io/badge/Java-17-orange?style=flat-square&logo=openjdk)](https://www.oracle.com/java/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.1-brightgreen?style=flat-square&logo=spring-boot)](https://spring.io/projects/spring-boot)
+[![Maven](https://img.shields.io/badge/Maven-3.8+-red?style=flat-square&logo=apache-maven)](https://maven.apache.org/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue?style=flat-square&logo=docker)](https://www.docker.com/)
 
-Responsibility: Precision formatting (Margins, Fonts, Line Spacing, Table Widths, Page Numbers).
+**Giải pháp tự động hóa định dạng tài liệu Word theo chuẩn Bộ Giáo dục và Nghị định 30**
 
-Rule: NEVER use AI to guess margins or positions. Use hard-coded values based on Vietnam Academic Standards (e.g., Margins: 3.5cm Left, 2cm others).
+[🌐 Website](https://formatpro.id.vn) • [📖 Tài liệu](#-tài-liệu-api) • [🚀 Bắt đầu](#-hướng-dẫn-cài-đặt--chạy-local)
 
-Tech: Java poi-ooxml.
+</div>
 
-LAYER 2: SOFT LOGIC (The Brain) - AI API (DeepSeek/Gemma)
+---
 
-Responsibility: Content generation, context understanding.
+## 📋 Giới thiệu
 
-Tasks:
+VietDoc Assistant là nền tảng SaaS chuyên nghiệp giúp tự động hóa quá trình định dạng tài liệu Word (`.docx`) theo các quy chuẩn của Bộ Giáo dục và Nghị định 30/2020/NĐ-CP. Hệ thống được thiết kế đặc biệt cho:
 
-Detect missing sections (e.g., "Lời cam đoan") and write them.
+- 🎓 **Sinh viên** chuẩn hóa đồ án, khóa luận tốt nghiệp
+- 👨‍💼 **Nhân viên văn phòng** định dạng báo cáo, văn bản
+- 🏫 **Giảng viên** thẩm định và kiểm tra định dạng tài liệu
 
-Generate captions for images/tables based on surrounding text context.
+## ✨ Tính năng nổi bật
 
-Paraphrase content (Future).
+### 🎯 Định dạng thông minh
+- **Cấu hình linh hoạt:** Tùy chỉnh Căn lề, Cỡ chữ, Giãn dòng, Thụt lề
+- **Font chuẩn hóa:** Tự động chuyển về Times New Roman
+- **Dọn dẹp văn bản:** Xóa ký tự rác, khắc phục lỗi ngắt dòng
 
-Rule: AI is expensive and slow. Only call AI when Logic Layer detects a need. Always implement Fallback Mechanisms (e.g., if API fails, insert placeholder text).
+### 📊 Xử lý bảng biểu & hình ảnh
+- **Tự động căn giữa:** Bo khung và đồng bộ font trong bảng
+- **Caption thông minh:** In nghiêng tự động chú thích Bảng/Ảnh
+- **Đồng bộ kích thước:** Chuẩn hóa font và size trong bảng
 
-2. TECHNICAL STACK & CONFIGURATION
-Language: Java (JDK 11+).
+### 📄 Đánh số trang chuyên nghiệp
+- **Bỏ qua trang bìa:** Tự động chèn số trang từ trang nội dung
+- **Định dạng linh hoạt:** Hỗ trợ nhiều kiểu đánh số trang
 
-Core Library: Apache POI (poi-ooxml version 5.x).
+### 🔒 Bảo mật & Tối ưu
+- **Xử lý in-memory:** File được xử lý trong bộ nhớ
+- **Tự động dọn dẹp:** Xóa file tạm ngay sau khi hoàn tất
+- **An toàn dữ liệu:** Không lưu trữ file người dùng
 
-JSON Handling: Native Java String parsing (to minimize dependencies) or Minimal JSON lib.
+---
 
-Network: java.net.http.HttpClient (Standard Java 11).
+## 🛠 Kiến trúc & Công nghệ
 
-AI Providers:
+### Backend Architecture
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Spring Boot 3.2.1                        │
+├─────────────────────────────────────────────────────────────┤
+│  REST API  │  Security  │  Validation  │  Redis Cache      │
+├─────────────────────────────────────────────────────────────┤
+│  Apache POI │  Docx4j   │  VnCoreNLP   │  PostgreSQL       │
+└─────────────────────────────────────────────────────────────┘
+```
 
-DeepSeek V3: (OpenAI-compatible format).
+### Tech Stack
 
-Google Gemma 2/3 (Free Tier): (Google AI Studio format).
+#### 🎨 Frontend
+- **[React](https://reactjs.org/)** + **[Vite](https://vitejs.dev/)** - Tối ưu build và render
+- **[Tailwind CSS](https://tailwindcss.com/)** - Giao diện hiện đại, responsive
 
-Requirement: Code must support Hot-Swapping between providers via a config flag.
+#### ⚙️ Backend
+- **[Java 17](https://www.oracle.com/java/)** - Core language
+- **[Spring Boot 3](https://spring.io/projects/spring-boot)** - Main framework
+- **[Apache POI 5.2.3](https://poi.apache.org/)** - Xử lý file Word
+- **[Docx4j 11.4.9](https://www.docx4java.org/)** - Can thiệp cấu trúc XML
+- **[VnCoreNLP](https://github.com/vncorenlp/VnCoreNLP)** - Xử lý ngôn ngữ tiếng Việt
+- **[PostgreSQL](https://www.postgresql.org/)** - Database
+- **[Redis](https://redis.io/)** - Caching layer
 
-3. CODING STANDARDS & REQUIREMENTS
-A. Formatting Rules (Hard-Code)
-Any code written must apply these standards by default:
+#### 🐳 Deployment
+- **[Docker](https://www.docker.com/)** - Containerization
+- **[Docker Compose](https://docs.docker.com/compose/)** - Multi-container deployment
+- **[Nginx](https://nginx.org/)** - Reverse proxy & SSL termination
 
-Font: Times New Roman, Size 13 (Body), Size 14 + Bold (Heading 1).
+---
 
-Paragraph:
+## 🚀 Hướng dẫn Cài đặt & Chạy Local
 
-Alignment: Justified (Both).
+### 📋 Yêu cầu hệ thống
 
-Spacing: Before = 0pt, After = 6pt (120 twips).
+| Công cụ | Phiên bản tối thiểu | Bắt buộc |
+|---------|-------------------|----------|
+| **Java JDK** | 17+ | ✅ |
+| **Node.js** | 18+ | ✅ |
+| **Maven** | 3.8+ | ✅ |
+| **Docker** | 20.10+ | ⚠️ (Tùy chọn) |
+| **PostgreSQL** | 13+ | ⚠️ (Tùy chọn) |
 
-Line Spacing: 1.5 lines.
+### 🔧 Cài đặt Backend
 
-Margins: Top/Bottom/Right = 2.0cm, Left = 3.0cm or 3.5cm.
+```bash
+# 1. Clone repository
+git clone https://github.com/your-username/vietdoc-assistant.git
+cd vietdoc-assistant
 
-Tables: Auto-fit to window (Width ~16cm).
+# 2. Build project với Maven
+mvn clean package -DskipTests
 
-B. AI Integration Rules
-Context Window: When sending text to AI for captioning, only send 150 chars above and 100 chars below the image. Do not send the whole document.
+# 3. Chạy ứng dụng
+java -jar target/vietdoc-assistant-0.0.1-SNAPSHOT.jar
+```
 
-System Prompt: Always enforce the persona: "You are a strict academic assistant. Output JSON only."
+🎉 **Backend sẽ chạy tại:** `http://localhost:8080`
 
-Error Handling: Wrap all API calls in try-catch. If AI fails, log error and continue formatting the rest of the document. Do not crash the app.
+### 🐳 Triển khai với Docker (Production)
 
-C. Debugging & Testing Mode
-The code must have a DEBUG_MODE flag:
+```bash
+# Build và khởi chạy tất cả services
+docker compose up -d --build
 
-true: Do not call real AI API. Insert hard-coded strings (e.g., "Hình [TEST]: ...") to verify positioning.
+# Kiểm tra trạng thái services
+docker compose ps
 
-false: Call real API.
+# Xem log của backend
+docker compose logs -f backend
+```
 
-4. IMPLEMENTATION CHECKLIST (DEFINITION OF DONE)
-An AI agent working on this project must ensure the following features are working:
+### 🗄️ Cấu hình Database
 
-[ ] Core Format: Document opens in Word with correct margins (check Ruler) and Font (Times New Roman).
+```yaml
+# application.yml
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/vietdoc_db
+    username: ${DB_USERNAME:vietdoc}
+    password: ${DB_PASSWORD:your_password}
+  
+  redis:
+    host: localhost
+    port: 6379
+```
 
-[ ] Table Fix: Tables do not overflow the page width.
+---
 
-[ ] Structure Check: Code detects if "Lời cam đoan" is missing.
+## 📡 Tài liệu API
 
-[ ] API Switch: Changing CURRENT_PROVIDER variable switches between DeepSeek and Google URLs correctly.
+### 📤 Upload & Format Document
 
-[ ] JSON Parsing: Code correctly extracts content from both Google's candidates.content.parts.text and DeepSeek's choices.message.content.
+**Endpoint:** `POST /api/format/upload`
 
-[ ] Safety: The output file is saved successfully even if the input file has weird formatting (MathType, Charts).
+**Content-Type:** `multipart/form-data`
 
-5. REQUIRED PROJECT STRUCTURE
-src/
-└── vn/
-    └── vietdoc/
-        └── vietdoc_assistant/
-            ├── VietDocCore.java       # Main Entry & Logic Orchestrator
-            ├── utils/
-            │   ├── POIHelper.java     # Helper for Margins, Fonts, Tables
-            │   ├── AIClient.java      # HTTP Client for DeepSeek/Google
-            │   └── TextUtils.java     # Context extraction, String parsing
-            └── config/
-                └── AppConfig.java     # API Keys, Constants (Margins, Fonts)
-6. INSTRUCTION FOR AI AGENTS (HOW TO CONTRIBUTE)
-Read: Analyze VietDocCore.java to understand the current state.
+#### Parameters
 
-Refactor: If the code is monolithic (all in one file), suggest splitting it into utils as per structure above.
+| Tham số | Kiểu dữ liệu | Bắt buộc | Mặc định | Mô tả |
+|---------|-------------|----------|----------|-------|
+| `file` | File | ✅ | - | File Word (.docx, Max: 15MB) |
+| `marginLeft` | Double | ❌ | 3.5 | Lề trái (cm) |
+| `marginRight` | Double | ❌ | 2.0 | Lề phải (cm) |
+| `marginTop` | Double | ❌ | 2.0 | Lề trên (cm) |
+| `marginBottom` | Double | ❌ | 2.0 | Lề dưới (cm) |
+| `lineSpacing` | Double | ❌ | 1.5 | Giãn dòng |
+| `fontSizeBody` | Integer | ❌ | 13 | Cỡ chữ nội dung |
+| `italicCaption` | Boolean | ❌ | true | In nghiêng caption |
 
-Test: Write a main method that processes a sample input.docx.
+#### Response
 
-Verify:
+**Success (200 OK)**
+```http
+Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+Content-Disposition: attachment; filename="formatted_document.docx"
 
-Does the code compile without external dependencies (except POI)?
+[Binary file data]
+```
 
-Does it handle Rate Limits (for Google Free Tier)?
+**Error Responses**
+```json
+// 400 Bad Request
+{
+  "error": "INVALID_FILE_FORMAT",
+  "message": "File phải có định dạng .docx"
+}
 
-Does it skip MathML/Charts to avoid corruption?
+// 413 Payload Too Large
+{
+  "error": "FILE_TOO_LARGE",
+  "message": "Kích thước file không được vượt quá 15MB"
+}
 
-COMMAND TO AI: "Start by analyzing the provided Java file. Refactor it to meet the 'Hybrid Architecture' defined above. Implement the 'Debug Mode' first."
+// 500 Internal Server Error
+{
+  "error": "PROCESSING_ERROR",
+  "message": "Lỗi xử lý file, vui lòng thử lại"
+}
+```
+
+### 🔍 Health Check
+
+**Endpoint:** `GET /api/health`
+
+```json
+{
+  "status": "UP",
+  "timestamp": "2024-01-15T10:30:00Z",
+  "version": "0.0.1-SNAPSHOT"
+}
+```
+
+---
+
+## 📁 Cấu trúc Project
+
+```
+vietdoc-assistant/
+├── 📁 src/
+│   ├── 📁 main/
+│   │   ├── 📁 java/vn/vietdoc/
+│   │   │   ├── 📁 controller/     # REST API endpoints
+│   │   │   ├── 📁 service/        # Business logic
+│   │   │   ├── 📁 model/          # Data models
+│   │   │   ├── 📁 config/         # Configuration
+│   │   │   └── 📁 util/           # Utility classes
+│   │   └── 📁 resources/
+│   │       ├── 📄 application.yml # App configuration
+│   │       └── 📁 static/         # Static files
+│   └── 📁 test/                   # Unit tests
+├── 📁 libs/                       # External libraries
+│   └── 📄 VnCoreNLP-1.2.jar      # Vietnamese NLP library
+├── 📄 pom.xml                     # Maven configuration
+├── 📄 Dockerfile                  # Docker build file
+├── 📄 docker-compose.yml          # Multi-container setup
+└── 📄 README.md                   # This file
+```
+
+---
+
+## 🧪 Testing
+
+```bash
+# Chạy tất cả tests
+mvn test
+
+# Chạy tests với coverage
+mvn jacoco:report
+
+# Chạy tests cho class cụ thể
+mvn test -Dtest=DocumentFormattingServiceTest
+```
+
+---
+
+## 🤝 Đóng góp
+
+Chúng tôi chào đón mọi đóng góp từ cộng đồng!
+
+### 📝 Quy trình đóng góp
+
+1. **Fork** repository
+2. Tạo **branch** mới (`git checkout -b feature/amazing-feature`)
+3. **Commit** changes (`git commit -m 'Add amazing feature'`)
+4. **Push** lên branch (`git push origin feature/amazing-feature`)
+5. Tạo **Pull Request**
+
+### 📋 Code style
+
+- Tuân thủ **Google Java Style Guide**
+- Sử dụng **Spring Boot conventions**
+- Viết **unit tests** cho mọi functions mới
+- Thêm **JavaDoc** cho public APIs
+
+---
+
+## 📄 License
+
+Dự án được phân phối dưới **MIT License** - xem file [LICENSE](LICENSE) để biết chi tiết.
+
+---
+
+## 📞 Liên hệ
+
+- **📧 Email:** support@formatpro.id.vn
+- **🌐 Website:** [formatpro.id.vn](https://formatpro.id.vn)
+- **🐛 Issues:** [GitHub Issues](https://github.com/your-username/vietdoc-assistant/issues)
+
+---
+
+<div align="center">
+
+**⭐ Nếu dự án hữu ích, hãy cho chúng tôi một star!**
+
+Made with ❤️ by VietDoc Team
+
+</div>

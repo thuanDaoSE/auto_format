@@ -76,7 +76,7 @@ public class TableImageProcessor {
     // 2. MAIN PROCESSING
     // ==========================================
 
-    public static void process(XWPFDocument doc, int startIndex) {
+    public static void process(XWPFDocument doc, int startIndex, FormattingParameters params) {
         System.out.println(">>> Bắt đầu xử lý Bảng/Ảnh (Bỏ qua bảng 1x1)...");
         setupPageMargins(doc);
 
@@ -118,7 +118,7 @@ public class TableImageProcessor {
 
                 // [BƯỚC 3] Format bảng (Luôn chạy để chuẩn hóa khung ngoài & font)
                 // Truyền isLayoutTable vào để quyết định có kẻ lưới bên trong hay không
-                fixTableTotally(table, isLayoutTable);
+                fixTableTotally(table, isLayoutTable, params);
 
                 // [BƯỚC 4] Nếu là bảng Layout -> Dừng xử lý tại đây (Không đánh số Caption)
                 if (isLayoutTable) {
@@ -138,7 +138,7 @@ public class TableImageProcessor {
                                           ? (XWPFParagraph) elements.get(i + 1) : null;
 
                 if (paraBefore != null) {
-                    handleTableCaption(paraBefore, paraAfter, currentChapter, tableCount);
+                    handleTableCaption(paraBefore, paraAfter, currentChapter, tableCount, params);
                 }
             }
 
@@ -149,12 +149,12 @@ public class TableImageProcessor {
                 // Sử dụng hasImage MỚI
                 if (hasImage(paraCurrent)) {
                     imageCount++;
-                    standardizeParagraph(paraCurrent);
+                    standardizeParagraph(paraCurrent, params);
                     XWPFParagraph paraBefore = findCandidateCaptionBefore(elements, i);
                     XWPFParagraph paraAfter = findCandidateCaptionAfter(elements, i);
 
                     // Xử lý ảnh
-                    handleImageCaption(doc, paraCurrent, paraBefore, paraAfter, currentChapter, imageCount);
+                    handleImageCaption(doc, paraCurrent, paraBefore, paraAfter, currentChapter, imageCount, params);
                     // (Ảnh tạo dòng mới ở DƯỚI nên không ảnh hưởng index, không cần i++)
                 }
             }
@@ -170,7 +170,7 @@ public class TableImageProcessor {
 
     // ... Trong Class TableImageProcessor ...
 
-    private static void handleTableCaption(XWPFParagraph paraBefore, XWPFParagraph paraAfter, int chapter, int index) {
+    private static void handleTableCaption(XWPFParagraph paraBefore, XWPFParagraph paraAfter, int chapter, int index, FormattingParameters params) {
         String finalContent = "";
         boolean isCaptionFound = false;
 
@@ -209,13 +209,13 @@ public class TableImageProcessor {
         r.setText(label + finalContent);
         r.setBold(true); 
         r.setFontFamily("Times New Roman"); 
-        r.setFontSize(13);
+        r.setFontSize(params.getFontSizeBody());
         
         System.out.println("[TABLE] " + label + finalContent);
     }
     
     // Đổi kiểu trả về thành boolean (true = đã chèn thêm dòng mới)
-    private static boolean handleImageCaption(XWPFDocument doc, XWPFParagraph paraCurrent, XWPFParagraph paraBefore, XWPFParagraph paraAfter, int chapter, int index) {
+    private static boolean handleImageCaption(XWPFDocument doc, XWPFParagraph paraCurrent, XWPFParagraph paraBefore, XWPFParagraph paraAfter, int chapter, int index, FormattingParameters params) {
         String finalContent = "";
         boolean isCaptionFound = false;
         XWPFParagraph targetPara = null;
@@ -254,9 +254,9 @@ public class TableImageProcessor {
 
         XWPFRun r = targetPara.createRun();
         r.setText(label + finalContent);
-        r.setItalic(true); 
+        r.setItalic(params.isItalicCaption());
         r.setFontFamily("Times New Roman"); 
-        r.setFontSize(13);
+        r.setFontSize(params.getFontSizeBody());
 
         System.out.println("[IMAGE] " + label + finalContent);
         return isInserted;
@@ -294,7 +294,7 @@ public class TableImageProcessor {
     // ==========================================
 
     // [SỬA] Thêm tham số boolean isLayoutTable
-    private static void fixTableTotally(XWPFTable table, boolean isLayoutTable) {
+    private static void fixTableTotally(XWPFTable table, boolean isLayoutTable, FormattingParameters params) {
         CTTblPr tblPr = table.getCTTbl().getTblPr();
         if (tblPr == null) tblPr = table.getCTTbl().addNewTblPr();
 
@@ -363,7 +363,7 @@ public class TableImageProcessor {
 
                 // Format nội dung bên trong
                 for (XWPFParagraph p : cell.getParagraphs()) {
-                    standardizeParagraph(p);
+                    standardizeParagraph(p, params);
                     // Nếu là bảng dữ liệu: Dòng đầu in đậm, canh giữa. Các dòng sau canh trái.
                     if (!isLayoutTable) {
                         if (i == 0) {
@@ -382,13 +382,13 @@ public class TableImageProcessor {
         }
     }
 
-    private static void standardizeParagraph(XWPFParagraph p) {
-        p.setSpacingBetween(1.5);
+    private static void standardizeParagraph(XWPFParagraph p, FormattingParameters params) {
+        p.setSpacingBetween(params.getLineSpacing());
         boolean hasImage = false;
 
         for (XWPFRun r : p.getRuns()) {
             r.setFontFamily("Times New Roman");
-            r.setFontSize(14);
+            r.setFontSize(params.getFontSizeBody());
             
             // Logic tìm và xử lý ảnh (Deep copy bằng XmlBeans)
             List<org.openxmlformats.schemas.wordprocessingml.x2006.main.CTDrawing> drawings = r.getCTR().getDrawingList();

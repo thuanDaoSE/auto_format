@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 public class PageNumberFormatter {
 
 private static final Pattern CHAPTER_1_REGEX = Pattern.compile("^[\\s\\u00A0]*(?:(?:CHƯƠNG|PHẦN)[\\s\\u00A0.:\\-]+)?([1I])(?:\\b|[^0-9IVX]).*", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
-    public static void formatPageNumbers(XWPFDocument doc) {
+    public static void formatPageNumbers(XWPFDocument doc, FormattingParameters params) {
         System.out.println(">>> Bắt đầu chia Section và đánh số trang an toàn...");
         List<XWPFParagraph> paras = doc.getParagraphs();
         
@@ -76,7 +76,7 @@ private static final Pattern CHAPTER_1_REGEX = Pattern.compile("^[\\s\\u00A0]*(?
             // Bỏ giấu trang đầu vì Trang Bìa đã được tách thành một Section riêng bởi CoverPageDetector rồi
             if (frontSectPr.isSetTitlePg()) frontSectPr.unsetTitlePg();
             
-            createFooter(doc, frontSectPr);
+            createFooter(doc, frontSectPr, params);
 
             // --- B. CẤU HÌNH PHẦN MAIN BODY (SỐ THƯỜNG) ---
             CTSectPr bodySectPr = originalBodySect != null ? originalBodySect : doc.getDocument().getBody().addNewSectPr();
@@ -87,7 +87,7 @@ private static final Pattern CHAPTER_1_REGEX = Pattern.compile("^[\\s\\u00A0]*(?
 
             if (bodySectPr.isSetTitlePg()) bodySectPr.unsetTitlePg();
             
-            createFooter(doc, bodySectPr);
+            createFooter(doc, bodySectPr, params);
 
         } else {
             // NẾU KHÔNG CÓ CẢ CHƯƠNG 1 LẪN LỜI MỞ ĐẦU (Văn bản liền mạch)
@@ -98,7 +98,7 @@ private static final Pattern CHAPTER_1_REGEX = Pattern.compile("^[\\s\\u00A0]*(?
             pgNumBody.setStart(BigInteger.ONE);
             
             if (bodySectPr.isSetTitlePg()) bodySectPr.unsetTitlePg();
-            createFooter(doc, bodySectPr);
+            createFooter(doc, bodySectPr, params);
         }
 
         // ========================================================
@@ -132,7 +132,7 @@ private static final Pattern CHAPTER_1_REGEX = Pattern.compile("^[\\s\\u00A0]*(?
     }
 
     // --- HÀM TẠO FOOTER SỐ TRANG CHUẨN ---
-    private static void createFooter(XWPFDocument doc, CTSectPr sectPr) {
+    private static void createFooter(XWPFDocument doc, CTSectPr sectPr, FormattingParameters params) {
         try {
             XWPFHeaderFooterPolicy policy = new XWPFHeaderFooterPolicy(doc, sectPr);
             // 1. Xóa rác Footer cũ
@@ -160,7 +160,7 @@ private static final Pattern CHAPTER_1_REGEX = Pattern.compile("^[\\s\\u00A0]*(?
 
             for (XWPFRun r : p.getRuns()) {
                 r.setFontFamily("Times New Roman");
-                r.setFontSize(13);
+                r.setFontSize(params.getFontSizeBody());
                 r.setColor("000000");
                 r.setBold(false);
             }

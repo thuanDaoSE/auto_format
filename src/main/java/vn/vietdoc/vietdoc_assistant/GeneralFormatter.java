@@ -18,7 +18,7 @@ public class GeneralFormatter {
     // Ngưỡng ký tự để quyết định Justify (Khoảng 1 dòng A4 font 13 là 70-80 ký tự)
     private static final int JUSTIFY_THRESHOLD = 70; 
 
-    public static void formatNormalText(XWPFDocument document, int startIdx) {
+    public static void formatNormalText(XWPFDocument document, int startIdx, FormattingParameters params) {
         System.out.println(">>> Đang chuẩn hóa Normal (Hỗ trợ List Item + Fix Soft Break)...");
         
         List<XWPFParagraph> paragraphs = document.getParagraphs();
@@ -49,7 +49,7 @@ public class GeneralFormatter {
             if (!isList) {
                 if (ppr.isSetInd()) ppr.unsetInd(); // Xóa sạch cái cũ
                 CTInd ind = ppr.addNewInd();
-                ind.setFirstLine(BigInteger.valueOf(INDENT_FIRST_LINE));
+                ind.setFirstLine(BigInteger.valueOf((long) (params.getIndentationFirstLine() * 567)));
             }
 
             // --- 3. XỬ LÝ ALIGNMENT & SOFT BREAK (ÁP DỤNG CHO CẢ LIST) ---
@@ -84,7 +84,7 @@ public class GeneralFormatter {
             // --- 5. CHUẨN HÓA FONT ---
             for (XWPFRun run : p.getRuns()) {
                 run.setFontFamily("Times New Roman");
-                run.setFontSize(14);
+                run.setFontSize(params.getFontSizeBody());
 
                 CTSpacing spacing = ppr.addNewSpacing();
                 spacing.setLine(BigInteger.valueOf(360)); // 360 = 1.5 lines
