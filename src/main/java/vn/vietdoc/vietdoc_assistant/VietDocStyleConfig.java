@@ -6,12 +6,12 @@ public class VietDocStyleConfig {
     // Page Margins (Twips)
     public static final BigInteger MARGIN_LEFT = BigInteger.valueOf((long) (3.5 * 567)); // 3.5cm
     public static final BigInteger MARGIN_RIGHT = BigInteger.valueOf((long) (2.0 * 567)); // 2.0cm
-    public static final BigInteger MARGIN_TOP = BigInteger.valueOf((long) (2.0 * 567)); // 2.0cm
+    public static final BigInteger MARGIN_TOP = BigInteger.valueOf((long) (2.5 * 567)); // 2.5cm
     public static final BigInteger MARGIN_BOTTOM = BigInteger.valueOf((long) (2.0 * 567)); // 2.0cm
 
     // Fonts & Sizes
     public static final String FONT_FAMILY = "Times New Roman";
-    public static final int FONT_SIZE_BODY = 13;
+    public static final int FONT_SIZE_BODY = 14;
     public static final int FONT_SIZE_HEADING1 = 14; // Các heading nhỏ hơn tự giảm
     public static final int FONT_SIZE_CAPTION = 12;
 
@@ -27,8 +27,8 @@ public class VietDocStyleConfig {
     // Cỡ chữ chuẩn cho từng Level (Theo Nghị định 30 hoặc chuẩn học thuật)
     public static final int FONT_SIZE_HEADING2 = 14; // Đậm
     public static final int FONT_SIZE_HEADING3 = 14; // Đậm, nghiêng hoặc thường
-    public static final int FONT_SIZE_HEADING4 = 13; // Bằng văn bản thường
-    public static final int FONT_SIZE_NORMAL = 13;
+    public static final int FONT_SIZE_HEADING4 = 14; // Bằng văn bản thường
+    public static final int FONT_SIZE_NORMAL = 14;
 
     // Spacing & Indentation (Chuẩn Nghị định 30)
     // Cách đoạn trước 0pt, Cách đoạn sau 6pt
@@ -45,7 +45,7 @@ public class VietDocStyleConfig {
         FormattingParameters params = new FormattingParameters();
         params.setMarginLeft(3.5);
         params.setMarginRight(2.0);
-        params.setMarginTop(2.0);
+        params.setMarginTop(2.5);
         params.setMarginBottom(2.0);
         params.setFontSizeBody(FONT_SIZE_BODY);
         params.setFontSizeHeading1(FONT_SIZE_HEADING1);

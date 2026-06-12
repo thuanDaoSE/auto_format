@@ -76,7 +76,7 @@ private static final Pattern CHAPTER_1_REGEX = Pattern.compile("^[\\s\\u00A0]*(?
             // Bỏ giấu trang đầu vì Trang Bìa đã được tách thành một Section riêng bởi CoverPageDetector rồi
             if (frontSectPr.isSetTitlePg()) frontSectPr.unsetTitlePg();
             
-            createFooter(doc, frontSectPr, params);
+            createHeader(doc, frontSectPr, params);
 
             // --- B. CẤU HÌNH PHẦN MAIN BODY (SỐ THƯỜNG) ---
             CTSectPr bodySectPr = originalBodySect != null ? originalBodySect : doc.getDocument().getBody().addNewSectPr();
@@ -87,7 +87,7 @@ private static final Pattern CHAPTER_1_REGEX = Pattern.compile("^[\\s\\u00A0]*(?
 
             if (bodySectPr.isSetTitlePg()) bodySectPr.unsetTitlePg();
             
-            createFooter(doc, bodySectPr, params);
+            createHeader(doc, bodySectPr, params);
 
         } else {
             // NẾU KHÔNG CÓ CẢ CHƯƠNG 1 LẪN LỜI MỞ ĐẦU (Văn bản liền mạch)
@@ -98,7 +98,7 @@ private static final Pattern CHAPTER_1_REGEX = Pattern.compile("^[\\s\\u00A0]*(?
             pgNumBody.setStart(BigInteger.ONE);
             
             if (bodySectPr.isSetTitlePg()) bodySectPr.unsetTitlePg();
-            createFooter(doc, bodySectPr, params);
+            createHeader(doc, bodySectPr, params);
         }
 
         // ========================================================
@@ -131,24 +131,24 @@ private static final Pattern CHAPTER_1_REGEX = Pattern.compile("^[\\s\\u00A0]*(?
         System.out.println(">>> [DONE] Định dạng số trang và A4 hoàn tất.");
     }
 
-    // --- HÀM TẠO FOOTER SỐ TRANG CHUẨN ---
-    private static void createFooter(XWPFDocument doc, CTSectPr sectPr, FormattingParameters params) {
+    // --- HÀM TẠO HEADER SỐ TRANG CHUẨN ---
+    private static void createHeader(XWPFDocument doc, CTSectPr sectPr, FormattingParameters params) {
         try {
             XWPFHeaderFooterPolicy policy = new XWPFHeaderFooterPolicy(doc, sectPr);
-            // 1. Xóa rác Footer cũ
-            if (policy.getDefaultFooter() != null) policy.getDefaultFooter().clearHeaderFooter();
-            if (policy.getFirstPageFooter() != null) policy.getFirstPageFooter().clearHeaderFooter(); 
-            if (policy.getEvenPageFooter() != null) policy.getEvenPageFooter().clearHeaderFooter();
-
-            // ==========================================================
-            // 2. [THÊM MỚI] XÓA SẠCH HEADER CŨ ĐỂ KHÔNG BỊ LƯU SỐ TRANG TRÊN ĐẦU
-            // ==========================================================
+            
+            // 1. Xóa rác Header cũ
             if (policy.getDefaultHeader() != null) policy.getDefaultHeader().clearHeaderFooter();
-            if (policy.getFirstPageHeader() != null) policy.getFirstPageHeader().clearHeaderFooter();
+            if (policy.getFirstPageHeader() != null) policy.getFirstPageHeader().clearHeaderFooter(); 
             if (policy.getEvenPageHeader() != null) policy.getEvenPageHeader().clearHeaderFooter();
 
-            XWPFFooter footer = policy.createFooter(XWPFHeaderFooterPolicy.DEFAULT);
-            XWPFParagraph p = footer.createParagraph();
+            // 2. Xóa rác Footer cũ để không bị lưu số trang bên dưới
+            if (policy.getDefaultFooter() != null) policy.getDefaultFooter().clearHeaderFooter();
+            if (policy.getFirstPageFooter() != null) policy.getFirstPageFooter().clearHeaderFooter();
+            if (policy.getEvenPageFooter() != null) policy.getEvenPageFooter().clearHeaderFooter();
+
+            // 3. Tạo Header mới
+            XWPFHeader header = policy.createHeader(XWPFHeaderFooterPolicy.DEFAULT);
+            XWPFParagraph p = header.createParagraph();
             p.setAlignment(ParagraphAlignment.CENTER);
 
             // Sinh Field PAGE
@@ -165,7 +165,7 @@ private static final Pattern CHAPTER_1_REGEX = Pattern.compile("^[\\s\\u00A0]*(?
                 r.setBold(false);
             }
         } catch (Exception e) {
-            System.err.println("Lỗi tạo Footer: " + e.getMessage());
+            System.err.println("Lỗi tạo Header: " + e.getMessage());
         }
     }
 }

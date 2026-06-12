@@ -18,7 +18,19 @@ public class VietDocEngine {
     // Đường dẫn tới file style (Bạn nhớ chép file này vào VPS nhé)
     // Nếu dùng Spring Boot, tốt nhất nên đặt file này vào thư mục resources hoặc
     // map volume bên ngoài.
-    private static final String STYLE_XML_PATH = "/app/data/styles_config.xml";
+    private static final String STYLE_XML_PATH_DOCKER = "/app/data/styles_config.xml";
+    private static final String STYLE_XML_PATH_LOCAL = "../data/styles_config.xml";
+    private static final String STYLE_XML_PATH_FALLBACK = "src/main/java/vn/vietdoc/vietdoc_assistant/styles_config.xml";
+
+    private static String getStyleXmlPath() {
+        if (new File(STYLE_XML_PATH_DOCKER).exists()) {
+            return STYLE_XML_PATH_DOCKER;
+        }
+        if (new File(STYLE_XML_PATH_LOCAL).exists()) {
+            return STYLE_XML_PATH_LOCAL;
+        }
+        return STYLE_XML_PATH_FALLBACK;
+    }
 
     /**
      * Hàm chính chuyên dùng cho Controller (Web) gọi vào
@@ -109,11 +121,12 @@ public class VietDocEngine {
             // ========================================================
             // BƯỚC 3: THAY THẾ FILE STYLES.XML BÊN TRONG (ZIP SWAP)
             // ========================================================
-            File styleFile = new File(STYLE_XML_PATH);
+            String styleXmlPath = getStyleXmlPath();
+            File styleFile = new File(styleXmlPath);
             if (styleFile.exists()) {
-                StyleSwapper.swapStyles(tempOutputFile.getAbsolutePath(), STYLE_XML_PATH, params);
+                StyleSwapper.swapStyles(tempOutputFile.getAbsolutePath(), styleXmlPath, params);
             } else {
-                System.err.println("CẢNH BÁO: Không tìm thấy file styles_config.xml tại " + STYLE_XML_PATH);
+                System.err.println("CẢNH BÁO: Không tìm thấy file styles_config.xml tại " + styleXmlPath);
             }
 
             // 4. Đọc file tạm đã hoàn thiện thành mảng byte để gửi trả cho Controller

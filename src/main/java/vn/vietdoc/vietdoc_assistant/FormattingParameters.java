@@ -50,7 +50,7 @@ public class FormattingParameters {
     }
 
     public Double getMarginTop() {
-        return marginTop != null ? marginTop : 2.0;
+        return marginTop != null ? marginTop : 2.5;
     }
 
     public void setMarginTop(Double marginTop) {
@@ -66,7 +66,7 @@ public class FormattingParameters {
     }
 
     public Integer getFontSizeBody() {
-        return fontSizeBody != null ? fontSizeBody : 13;
+        return fontSizeBody != null ? fontSizeBody : 14;
     }
 
     public void setFontSizeBody(Integer fontSizeBody) {

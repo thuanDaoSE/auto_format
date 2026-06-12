@@ -120,7 +120,7 @@ public class HeadingProcessor {
                         }
                     } else {
                         r.setBold(true); // Đảm bảo Heading 2 và heading bị skip đều in đậm
-                        r.setFontSize(13);
+                        r.setFontSize(14);
                     }
                 }
             } 
